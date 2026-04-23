@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class DetailPengantaranPage extends StatelessWidget {
+class DetailPengantaranPage extends StatefulWidget {
   final Map<String, dynamic> kurirData;
   final Map<String, dynamic> pengantaranData;
 
@@ -11,14 +11,23 @@ class DetailPengantaranPage extends StatelessWidget {
   });
 
   @override
+  State<DetailPengantaranPage> createState() => _DetailPengantaranPageState();
+}
+
+class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
+  bool isPelangganExpanded = false;
+  bool isPesananExpanded = true;
+
+  @override
   Widget build(BuildContext context) {
-    final String nama = pengantaranData['nama']?.toString() ?? 'Pelanggan';
-    final String alamat = pengantaranData['alamat']?.toString() ?? '-';
-    final String catatan = pengantaranData['catatan']?.toString() ??
+    final String nama = widget.pengantaranData['nama']?.toString() ?? 'Pelanggan';
+    final String alamat = widget.pengantaranData['alamat']?.toString() ?? '-';
+    final String noHp = widget.pengantaranData['no_hp']?.toString() ?? '081234567890';
+    final String catatan = widget.pengantaranData['catatan']?.toString() ??
         'Mohon Pastikan Pesanan Benar Sebelum Mengantar';
 
     final List<Map<String, dynamic>> items =
-        (pengantaranData['items'] as List<dynamic>? ?? [])
+        (widget.pengantaranData['items'] as List<dynamic>? ?? [])
             .map((e) => Map<String, dynamic>.from(e as Map))
             .toList();
 
@@ -71,6 +80,7 @@ class DetailPengantaranPage extends StatelessWidget {
                       _buildAlamatCard(
                         nama: nama,
                         alamat: alamat,
+                        noHp: noHp,
                       ),
                       const SizedBox(height: 14),
 
@@ -201,72 +211,8 @@ class DetailPengantaranPage extends StatelessWidget {
   Widget _buildAlamatCard({
     required String nama,
     required String alamat,
+    required String noHp,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEAF0F0),
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: const Color(0xFFD7EFF3),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: const Icon(
-              Icons.home_rounded,
-              color: Color(0xFF2F89C3),
-              size: 30,
-            ),
-          ),
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  nama,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF234F63),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  alamat,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF5D7078),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const Icon(
-            Icons.chevron_right_rounded,
-            color: Color(0xFF8CA3AA),
-            size: 32,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPesananCard(List<Map<String, dynamic>> items) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFEAF0F0),
@@ -281,13 +227,158 @@ class DetailPengantaranPage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          for (int i = 0; i < items.length; i++) ...[
+          InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: () {
+              setState(() {
+                isPelangganExpanded = !isPelangganExpanded;
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD7EFF3),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: const Icon(
+                      Icons.home_rounded,
+                      color: Color(0xFF2F89C3),
+                      size: 30,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          nama,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF234F63),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          alamat,
+                          maxLines: isPelangganExpanded ? null : 2,
+                          overflow: isPelangganExpanded
+                              ? TextOverflow.visible
+                              : TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF5D7078),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Icon(
+                    isPelangganExpanded
+                        ? Icons.keyboard_arrow_down_rounded
+                        : Icons.chevron_right_rounded,
+                    color: const Color(0xFF8CA3AA),
+                    size: 32,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          if (isPelangganExpanded) ...[
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Color(0xFFC8D7DB),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDetailInfoRow('Nama', nama),
+                  const SizedBox(height: 8),
+                  _buildDetailInfoRow('Alamat', alamat),
+                  const SizedBox(height: 8),
+                  _buildDetailInfoRow('No HP', noHp),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailInfoRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 58,
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF234F63),
+            ),
+          ),
+        ),
+        const Text(
+          ': ',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF234F63),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Color(0xFF5D7078),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPesananCard(List<Map<String, dynamic>> items) {
+    final List<Map<String, dynamic>> displayedItems =
+        isPesananExpanded ? items : (items.isNotEmpty ? [items.first] : []);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAF0F0),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          for (int i = 0; i < displayedItems.length; i++) ...[
             _buildPesananItem(
-              namaItem: items[i]['nama']?.toString() ?? '-',
-              imagePath: items[i]['imagePath']?.toString(),
+              namaItem: displayedItems[i]['nama']?.toString() ?? '-',
+              imagePath: displayedItems[i]['imagePath']?.toString(),
               showArrow: i == 0,
             ),
-            if (i != items.length - 1)
+            if (i != displayedItems.length - 1)
               const Divider(
                 height: 1,
                 thickness: 1,
@@ -304,51 +395,63 @@ class DetailPengantaranPage extends StatelessWidget {
     required String? imagePath,
     required bool showArrow,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(21),
-            ),
-            child: ClipOval(
-              child: imagePath != null
-                  ? Image.asset(
-                      imagePath,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(
+    return InkWell(
+      onTap: showArrow
+          ? () {
+              setState(() {
+                isPesananExpanded = !isPesananExpanded;
+              });
+            }
+          : null,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(21),
+              ),
+              child: ClipOval(
+                child: imagePath != null
+                    ? Image.asset(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.local_shipping,
+                          color: Color(0xFF2F89C3),
+                        ),
+                      )
+                    : const Icon(
                         Icons.local_shipping,
                         color: Color(0xFF2F89C3),
                       ),
-                    )
-                  : const Icon(
-                      Icons.local_shipping,
-                      color: Color(0xFF2F89C3),
-                    ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              namaItem,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF234F63),
               ),
             ),
-          ),
-          if (showArrow)
-            const Icon(
-              Icons.keyboard_arrow_up_rounded,
-              color: Color(0xFF8CA3AA),
-              size: 28,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                namaItem,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF234F63),
+                ),
+              ),
             ),
-        ],
+            if (showArrow)
+              Icon(
+                isPesananExpanded
+                    ? Icons.keyboard_arrow_up_rounded
+                    : Icons.keyboard_arrow_down_rounded,
+                color: const Color(0xFF8CA3AA),
+                size: 28,
+              ),
+          ],
+        ),
       ),
     );
   }

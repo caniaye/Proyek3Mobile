@@ -15,25 +15,9 @@ class DaftarPengantaranPage extends StatelessWidget {
       {
         'nama': 'Agus Setiawan',
         'alamat': 'Jl. Merdeka No. 123, RT/RW.08/01, Jakarta Pusat, DKI Jakarta',
+        'no_hp': '082262235682',
         'status': 'Belum Dikirim',
         'statusColor': const Color(0xFFF4D35E),
-        'catatan': 'Mohon Pastikan Pesanan Benar Sebelum Mengantar',
-        'items': [
-          {
-            'nama': '2 X GAS 12 Kg',
-            'imagePath': 'assets/images/Logo Berdiri.png',
-          },
-          {
-            'nama': '10 X GAS 3 Kg',
-            'imagePath': 'assets/images/Logo Berdiri.png',
-          },
-        ],
-      },
-      {
-        'nama': 'Agus Setiawan',
-        'alamat': 'Jl. Merdeka No. 123, Jakarta',
-        'status': 'Dalam Perjalanan',
-        'statusColor': const Color(0xFF8FD3D1),
         'catatan': 'Mohon Pastikan Pesanan Benar Sebelum Mengantar',
         'items': [
           {
@@ -42,6 +26,24 @@ class DaftarPengantaranPage extends StatelessWidget {
           },
           {
             'nama': '5 X GAS 3 Kg',
+            'imagePath': 'assets/images/Logo Berdiri.png',
+          },
+        ],
+      },
+      {
+        'nama': 'Agus Setiawan',
+        'alamat': 'Jl. Merdeka No. 123, Jakarta',
+        'no_hp': '082198765432',
+        'status': 'Dalam Perjalanan',
+        'statusColor': const Color(0xFF8FD3D1),
+        'catatan': 'Mohon Pastikan Pesanan Benar Sebelum Mengantar',
+        'items': [
+          {
+            'nama': '2 X GAS 12 Kg',
+            'imagePath': 'assets/images/Logo Berdiri.png',
+          },
+          {
+            'nama': '10 X GAS 3 Kg',
             'imagePath': 'assets/images/Logo Berdiri.png',
           },
         ],
