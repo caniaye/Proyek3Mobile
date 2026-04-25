@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'verifikasi_penerima_page.dart';
 
 class DetailPengantaranPage extends StatefulWidget {
   final Map<String, dynamic> kurirData;
@@ -172,9 +173,10 @@ class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
                         height: 46,
                         child: ElevatedButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Nanti lanjut ke Verifikasi Penerima'),
+                            Navigator.push(
+                           context,
+                           MaterialPageRoute(
+                           builder: (context) => const VerifikasiPenerimaPage(),
                               ),
                             );
                           },
