@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:proyek3_mobile/screens/profil_kurir_page.dart';
+import 'package:proyek3_mobile/screens/riwayat_page.dart';
 import 'daftar_pengantaran_page.dart';
+
 
 class DashboardKurirPage extends StatelessWidget {
   final Map<String, dynamic> kurirData;
@@ -107,9 +110,12 @@ class DashboardKurirPage extends StatelessWidget {
                               subtitle: '',
                               isActive: false,
                               onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Halaman Riwayat nanti dibuat'),
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RiwayatPage (
+                                      kurir: kurirData,
+                                    ),
                                   ),
                                 );
                               },
@@ -123,11 +129,14 @@ class DashboardKurirPage extends StatelessWidget {
                               subtitle: '',
                               isActive: false,
                               onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Halaman Profil nanti dibuat'),
-                                  ),
-                                );
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProfilKurirPage(
+                                      kurir: kurirData, 
+                                    ),
+                                  )
+                                  );
                               },
                             ),
                           ],
@@ -333,9 +342,15 @@ class DashboardKurirPage extends StatelessWidget {
             label: 'Riwayat',
             selected: false,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Halaman Riwayat nanti dibuat')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RiwayatPage (
+                    kurir: kurirData,
+                  ),
+                ),
               );
+            
             },
           ),
           _BottomNavItem(
@@ -343,8 +358,13 @@ class DashboardKurirPage extends StatelessWidget {
             label: 'Profil',
             selected: false,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Halaman Profil nanti dibuat')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfilKurirPage(
+                    kurir: kurirData,
+                  ),
+                ),  
               );
             },
           ),

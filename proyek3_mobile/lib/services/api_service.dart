@@ -23,4 +23,33 @@ class ApiService {
     final Map<String, dynamic> data = jsonDecode(response.body);
     return data;
   }
+
+  static Future<List<dynamic>> getRiwayatKurir(String kurirId) async {
+  final url = Uri.parse('$baseUrl/riwayat-kurir/$kurirId');
+
+  final response = await http.get(
+    url,
+    headers: {
+      'Accept': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+
+    if (data is Map && data['data'] != null) {
+      return data['data'];
+    }
+
+    if (data is List) {
+      return data;
+    }
+
+    return [];
+  } else {
+    throw Exception(
+      'Status ${response.statusCode}\n${response.body}',
+    );
+  }
+}
 }
