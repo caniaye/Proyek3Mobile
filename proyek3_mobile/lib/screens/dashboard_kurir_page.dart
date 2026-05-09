@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:proyek3_mobile/screens/profil_kurir_page.dart';
 import 'package:proyek3_mobile/screens/riwayat_page.dart';
+import '../services/api_service.dart';
 import 'daftar_pengantaran_page.dart';
 
-
-class DashboardKurirPage extends StatelessWidget {
+class DashboardKurirPage extends StatefulWidget {
   final Map<String, dynamic> kurirData;
 
   const DashboardKurirPage({
@@ -13,9 +13,52 @@ class DashboardKurirPage extends StatelessWidget {
   });
 
   @override
+  State<DashboardKurirPage> createState() => _DashboardKurirPageState();
+}
+
+class _DashboardKurirPageState extends State<DashboardKurirPage> {
+  int tugasHariIni = 0;
+  bool isLoadingTugas = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadTugasHariIni();
+  }
+
+  Future<void> loadTugasHariIni() async {
+    try {
+      final kurirId = widget.kurirData['id'].toString();
+      final data = await ApiService.getPengantaranKurir(kurirId);
+
+      final jumlahTugas = data.where((item) {
+        final status = item['status']?.toString() ?? '';
+        return status == 'belum_dikirim' || status == 'dalam_perjalanan';
+      }).length;
+
+      if (!mounted) return;
+
+      setState(() {
+        tugasHariIni = jumlahTugas;
+        isLoadingTugas = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        tugasHariIni = 0;
+        isLoadingTugas = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final String namaKurir = kurirData['nama']?.toString() ?? 'Kurir';
-    final String kodeKurir = kurirData['kode']?.toString() ?? '';
+    final String namaKurir = widget.kurirData['nama']?.toString() ?? 'Kurir';
+    final String kodeKurir = widget.kurirData['kode']?.toString() ?? '';
+
+    final String tugasText =
+        isLoadingTugas ? 'Memuat...' : '$tugasHariIni Tugas Hari Ini';
 
     return Scaffold(
       backgroundColor: const Color(0xFFC7E0E0),
@@ -39,7 +82,6 @@ class DashboardKurirPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 28),
-
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.fromLTRB(22, 18, 22, 26),
@@ -73,37 +115,31 @@ class DashboardKurirPage extends StatelessWidget {
                                 ),
                               ],
                             ),
-
                             const SizedBox(height: 26),
-
                             _buildInfoCard(
                               icon: Icons.local_shipping_rounded,
                               title: 'Tugas Hari Ini:',
-                              subtitle: '5 Tugas Hari Ini',
+                              subtitle: tugasText,
                               iconColor: const Color(0xFF1499AD),
                             ),
-
                             const SizedBox(height: 24),
-
                             _buildMenuCard(
                               icon: Icons.inventory_2_outlined,
                               title: 'Daftar Pengantaran',
-                              subtitle: '5 Tugas Hari Ini',
+                              subtitle: tugasText,
                               isActive: true,
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => DaftarPengantaranPage(
-                                      kurirData: kurirData,
+                                      kurirData: widget.kurirData,
                                     ),
                                   ),
-                                );
+                                ).then((_) => loadTugasHariIni());
                               },
                             ),
-
                             const SizedBox(height: 24),
-
                             _buildMenuCard(
                               icon: Icons.access_time_rounded,
                               title: 'Riwayat',
@@ -113,16 +149,14 @@ class DashboardKurirPage extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => RiwayatPage (
-                                      kurir: kurirData,
+                                    builder: (context) => RiwayatPage(
+                                      kurir: widget.kurirData,
                                     ),
                                   ),
                                 );
                               },
                             ),
-
                             const SizedBox(height: 24),
-
                             _buildMenuCard(
                               icon: Icons.account_circle_outlined,
                               title: 'Profil',
@@ -133,10 +167,10 @@ class DashboardKurirPage extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ProfilKurirPage(
-                                      kurir: kurirData, 
+                                      kurir: widget.kurirData,
                                     ),
-                                  )
-                                  );
+                                  ),
+                                );
                               },
                             ),
                           ],
@@ -147,7 +181,6 @@ class DashboardKurirPage extends StatelessWidget {
                 ),
               ),
             ),
-
             _buildBottomNav(context),
           ],
         ),
@@ -331,10 +364,10 @@ class DashboardKurirPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => DaftarPengantaranPage(
-                    kurirData: kurirData,
+                    kurirData: widget.kurirData,
                   ),
                 ),
-              );
+              ).then((_) => loadTugasHariIni());
             },
           ),
           _BottomNavItem(
@@ -345,12 +378,11 @@ class DashboardKurirPage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => RiwayatPage (
-                    kurir: kurirData,
+                  builder: (context) => RiwayatPage(
+                    kurir: widget.kurirData,
                   ),
                 ),
               );
-            
             },
           ),
           _BottomNavItem(
@@ -362,9 +394,9 @@ class DashboardKurirPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ProfilKurirPage(
-                    kurir: kurirData,
+                    kurir: widget.kurirData,
                   ),
-                ),  
+                ),
               );
             },
           ),

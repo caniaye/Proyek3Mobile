@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:proyek3_mobile/screens/profil_kurir_page.dart';
+import 'package:proyek3_mobile/screens/riwayat_page.dart';
+
+import '../services/api_service.dart';
 import 'detail_pengantaran_page.dart';
 
-class DaftarPengantaranPage extends StatelessWidget {
+class DaftarPengantaranPage extends StatefulWidget {
   final Map<String, dynamic> kurirData;
 
   const DaftarPengantaranPage({
@@ -10,46 +14,48 @@ class DaftarPengantaranPage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> daftarPengantaran = [
-      {
-        'nama': 'Agus Setiawan',
-        'alamat': 'Jl. Merdeka No. 123, RT/RW.08/01, Jakarta Pusat, DKI Jakarta',
-        'no_hp': '082262235682',
-        'status': 'Belum Dikirim',
-        'statusColor': const Color(0xFFF4D35E),
-        'catatan': 'Mohon Pastikan Pesanan Benar Sebelum Mengantar',
-        'items': [
-          {
-            'nama': '1 X GAS 12 Kg',
-            'imagePath': 'assets/images/Logo Berdiri.png',
-          },
-          {
-            'nama': '5 X GAS 3 Kg',
-            'imagePath': 'assets/images/Logo Berdiri.png',
-          },
-        ],
-      },
-      {
-        'nama': 'Agus Setiawan',
-        'alamat': 'Jl. Merdeka No. 123, Jakarta',
-        'no_hp': '082198765432',
-        'status': 'Dalam Perjalanan',
-        'statusColor': const Color(0xFF8FD3D1),
-        'catatan': 'Mohon Pastikan Pesanan Benar Sebelum Mengantar',
-        'items': [
-          {
-            'nama': '2 X GAS 12 Kg',
-            'imagePath': 'assets/images/Logo Berdiri.png',
-          },
-          {
-            'nama': '10 X GAS 3 Kg',
-            'imagePath': 'assets/images/Logo Berdiri.png',
-          },
-        ],
-      },
-    ];
+  State<DaftarPengantaranPage> createState() => _DaftarPengantaranPageState();
+}
 
+class _DaftarPengantaranPageState extends State<DaftarPengantaranPage> {
+  bool isLoading = true;
+  String? errorMessage;
+  List<dynamic> daftarPengantaran = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadPengantaran();
+  }
+
+  Future<void> loadPengantaran() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+
+      final kurirId = widget.kurirData['id'].toString();
+      final result = await ApiService.getPengantaranKurir(kurirId);
+
+      if (!mounted) return;
+
+      setState(() {
+        daftarPengantaran = result;
+        isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        errorMessage = e.toString();
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFC7E0E0),
       body: SafeArea(
@@ -68,19 +74,20 @@ class DaftarPengantaranPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  const Text(
-                    'Daftar Pengantaran',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF234F63),
+                  const Expanded(
+                    child: Text(
+                      'Daftar Pengantaran',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF234F63),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-
             Expanded(
               child: Container(
                 width: double.infinity,
@@ -90,23 +97,108 @@ class DaftarPengantaranPage extends StatelessWidget {
                   color: const Color(0xFFF4F6F4),
                   borderRadius: BorderRadius.circular(30),
                 ),
-                child: ListView.separated(
-                  itemCount: daftarPengantaran.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final item = daftarPengantaran[index];
-                    return _buildPengantaranCard(
-                      context: context,
-                      pengantaranData: item,
-                    );
-                  },
-                ),
+                child: _buildContent(),
               ),
             ),
-
             _buildBottomNav(context),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: Color(0xFF2FA4B5),
+        ),
+      );
+    }
+
+    if (errorMessage != null) {
+      return Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 48,
+                color: Color(0xFF234F63),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Gagal mengambil data pengantaran',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF234F63),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF5D7078),
+                ),
+              ),
+              const SizedBox(height: 14),
+              ElevatedButton(
+                onPressed: loadPengantaran,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2FA4B5),
+                ),
+                child: const Text(
+                  'Coba Lagi',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (daftarPengantaran.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: loadPengantaran,
+        color: const Color(0xFF2FA4B5),
+        child: ListView(
+          children: const [
+            SizedBox(height: 180),
+            Center(
+              child: Text(
+                'Belum ada pengantaran',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF234F63),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: loadPengantaran,
+      color: const Color(0xFF2FA4B5),
+      child: ListView.separated(
+        itemCount: daftarPengantaran.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          final item = Map<String, dynamic>.from(daftarPengantaran[index]);
+
+          return _buildPengantaranCard(
+            context: context,
+            pengantaranData: item,
+          );
+        },
       ),
     );
   }
@@ -115,10 +207,21 @@ class DaftarPengantaranPage extends StatelessWidget {
     required BuildContext context,
     required Map<String, dynamic> pengantaranData,
   }) {
-    final String nama = pengantaranData['nama'] as String;
-    final String alamat = pengantaranData['alamat'] as String;
-    final String status = pengantaranData['status'] as String;
-    final Color statusColor = pengantaranData['statusColor'] as Color;
+    final pelanggan = Map<String, dynamic>.from(
+      pengantaranData['pelanggan'] ?? {},
+    );
+
+    final pesanan = Map<String, dynamic>.from(
+      pengantaranData['pesanan'] ?? {},
+    );
+
+    final String nama = pelanggan['nama']?.toString() ?? '-';
+    final String alamat = pelanggan['alamat']?.toString() ?? '-';
+    final String kodePesanan = pesanan['kode']?.toString() ?? '';
+
+    final String status = pengantaranData['status']?.toString() ?? '-';
+    final String statusLabel =
+        pengantaranData['status_label']?.toString() ?? _statusLabel(status);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -149,13 +252,14 @@ class DaftarPengantaranPage extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   nama,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -172,12 +276,20 @@ class DaftarPengantaranPage extends StatelessWidget {
                     color: Color(0xFF5D7078),
                   ),
                 ),
+                if (kodePesanan.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    kodePesanan,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF829CA5),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
-
           const SizedBox(width: 8),
-
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -187,11 +299,11 @@ class DaftarPengantaranPage extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: statusColor,
+                  color: _statusColor(status),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  status,
+                  statusLabel,
                   style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -206,11 +318,13 @@ class DaftarPengantaranPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => DetailPengantaranPage(
-                        kurirData: kurirData,
+                        kurirData: widget.kurirData,
                         pengantaranData: pengantaranData,
                       ),
                     ),
-                  );
+                  ).then((_) {
+                    loadPengantaran();
+                  });
                 },
                 borderRadius: BorderRadius.circular(10),
                 child: Container(
@@ -250,6 +364,36 @@ class DaftarPengantaranPage extends StatelessWidget {
     );
   }
 
+  String _statusLabel(String status) {
+    switch (status) {
+      case 'belum_dikirim':
+        return 'Belum Dikirim';
+      case 'dalam_perjalanan':
+        return 'Dalam Perjalanan';
+      case 'berhasil':
+        return 'Berhasil';
+      case 'dibatalkan':
+        return 'Dibatalkan';
+      default:
+        return status;
+    }
+  }
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'belum_dikirim':
+        return const Color(0xFFF4D35E);
+      case 'dalam_perjalanan':
+        return const Color(0xFF8FD3D1);
+      case 'berhasil':
+        return const Color(0xFF9BDE7E);
+      case 'dibatalkan':
+        return const Color(0xFFFF8A8A);
+      default:
+        return const Color(0xFFEAF0F0);
+    }
+  }
+
   Widget _buildBottomNav(BuildContext context) {
     return Container(
       margin: const EdgeInsets.fromLTRB(34, 18, 34, 28),
@@ -269,15 +413,20 @@ class DaftarPengantaranPage extends StatelessWidget {
             icon: Icons.home_rounded,
             label: 'Daftar Pengantaran',
             selected: true,
-            onTap: () {},
+            onTap: loadPengantaran,
           ),
           _BottomNavItem(
             icon: Icons.receipt_long_rounded,
             label: 'Riwayat',
             selected: false,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Halaman Riwayat nanti dibuat')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RiwayatPage(
+                    kurir: widget.kurirData,
+                  ),
+                ),
               );
             },
           ),
@@ -286,8 +435,13 @@ class DaftarPengantaranPage extends StatelessWidget {
             label: 'Profil',
             selected: false,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Halaman Profil nanti dibuat')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfilKurirPage(
+                    kurir: widget.kurirData,
+                  ),
+                ),
               );
             },
           ),
