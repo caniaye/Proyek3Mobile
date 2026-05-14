@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import 'verifikasi_penerima_page.dart';
 
 class DetailPengantaranPage extends StatefulWidget {
@@ -19,6 +20,15 @@ class DetailPengantaranPage extends StatefulWidget {
 class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
   bool isPelangganExpanded = true;
   bool sudahMulaiPengantaran = false;
+  bool isMulaiLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final status = widget.pengantaranData['status']?.toString() ?? '';
+    sudahMulaiPengantaran = status == 'dalam_perjalanan' || status == 'berhasil';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +71,7 @@ class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(context, true),
                     icon: const Icon(
                       Icons.arrow_back_ios_new_rounded,
                       color: Color(0xFF234F63),
@@ -82,9 +92,7 @@ class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -103,9 +111,7 @@ class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
                         alamat: alamat,
                         noHp: noHp,
                       ),
-
                       const SizedBox(height: 14),
-
                       const Text(
                         'Pesanan',
                         style: TextStyle(
@@ -114,13 +120,9 @@ class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
                           color: Color(0xFF234F63),
                         ),
                       ),
-
                       const SizedBox(height: 8),
-
                       _buildPesananCard(items),
-
                       const SizedBox(height: 18),
-
                       const Text(
                         'Catatan Untuk Kurir',
                         style: TextStyle(
@@ -129,9 +131,7 @@ class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
                           color: Color(0xFF234F63),
                         ),
                       ),
-
                       const SizedBox(height: 8),
-
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(
@@ -157,19 +157,52 @@ class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 24),
 
                       SizedBox(
                         width: double.infinity,
                         height: 54,
                         child: ElevatedButton(
-                          onPressed: sudahMulaiPengantaran
+                          onPressed: sudahMulaiPengantaran || isMulaiLoading
                               ? null
-                              : () {
+                              : () async {
                                   setState(() {
-                                    sudahMulaiPengantaran = true;
+                                    isMulaiLoading = true;
                                   });
+
+                                  try {
+                                    await ApiService.mulaiPengantaran(
+                                      pengantaranId: pengantaranId,
+                                    );
+
+                                    if (!mounted) return;
+
+                                    setState(() {
+                                      sudahMulaiPengantaran = true;
+                                    });
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Status berubah menjadi dalam perjalanan',
+                                        ),
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    if (!mounted) return;
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Gagal mulai: $e'),
+                                      ),
+                                    );
+                                  } finally {
+                                    if (!mounted) return;
+
+                                    setState(() {
+                                      isMulaiLoading = false;
+                                    });
+                                  }
                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2FA4B5),
@@ -180,7 +213,9 @@ class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
                             ),
                           ),
                           child: Text(
-                            'Mulai Pengantaran',
+                            isMulaiLoading
+                                ? 'Memproses...'
+                                : 'Mulai Pengantaran',
                             style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
@@ -204,9 +239,10 @@ class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) =>
-                                          VerifikasiPenerimaPage(
-                                        pengantaranId: pengantaranId,
-                                      ),
+                                        VerifikasiPenerimaPage(
+                                          pengantaranId: pengantaranId,
+                                          kurirData: widget.kurirData,
+                                        ),
                                     ),
                                   );
                                 }
@@ -236,7 +272,6 @@ class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
                 ),
               ),
             ),
-
             _buildBottomNav(context),
           ],
         ),
@@ -342,7 +377,6 @@ class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
               ),
             ),
           ),
-
           if (isPelangganExpanded) ...[
             const Divider(
               height: 1,
@@ -529,7 +563,7 @@ class _DetailPengantaranPageState extends State<DetailPengantaranPage> {
             icon: Icons.home_rounded,
             label: 'Daftar Pengantaran',
             selected: true,
-            onTap: () => Navigator.pop(context),
+            onTap: () => Navigator.pop(context, true),
           ),
           _BottomNavItem(
             icon: Icons.receipt_long_rounded,

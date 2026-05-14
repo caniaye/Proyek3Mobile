@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'daftar_pengantaran_page.dart';
+import 'riwayat_page.dart';
+import 'profil_kurir_page.dart';
+
 class KonfirmasiPengantaranPage extends StatelessWidget {
   final String? fotoVerifikasi;
+  final Map<String, dynamic> kurirData;
 
   const KonfirmasiPengantaranPage({
     super.key,
     this.fotoVerifikasi,
+    required this.kurirData,
   });
 
   @override
@@ -100,7 +106,9 @@ class KonfirmasiPengantaranPage extends StatelessWidget {
                                 fotoVerifikasi!.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Foto verifikasi belum tersedia'),
+                                  content: Text(
+                                    'Foto verifikasi belum tersedia',
+                                  ),
                                 ),
                               );
                               return;
@@ -191,20 +199,46 @@ class KonfirmasiPengantaranPage extends StatelessWidget {
             label: 'Daftar Pengantaran',
             selected: true,
             onTap: () {
-              Navigator.popUntil(context, (route) => route.isFirst);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DaftarPengantaranPage(
+                    kurirData: kurirData,
+                  ),
+                ),
+                (route) => false,
+              );
             },
           ),
           _BottomNavItem(
             icon: Icons.receipt_long_rounded,
             label: 'Riwayat',
             selected: false,
-            onTap: () {},
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RiwayatPage(
+                    kurir: kurirData,
+                  ),
+                ),
+              );
+            },
           ),
           _BottomNavItem(
             icon: Icons.account_circle_outlined,
             label: 'Profil',
             selected: false,
-            onTap: () {},
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfilKurirPage(
+                    kurir: kurirData,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -320,6 +354,7 @@ class _BottomNavItem extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
                 color: selected ? activeColor : inactiveColor,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login_kurir_page.dart';
+import 'daftar_pengantaran_page.dart';
+import 'riwayat_page.dart';
 
 class ProfilKurirPage extends StatelessWidget {
   final Map<String, dynamic> kurir;
@@ -18,6 +20,7 @@ class ProfilKurirPage extends StatelessWidget {
     ], 'Nama Kurir');
 
     final String kodeKurir = _getValue(kurir, [
+      'kode',
       'kode_kurir',
     ], '');
 
@@ -56,9 +59,7 @@ class ProfilKurirPage extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 110),
-
                   Center(
                     child: Stack(
                       clipBehavior: Clip.none,
@@ -82,9 +83,7 @@ class ProfilKurirPage extends StatelessWidget {
                                   color: Color(0xFF174B5B),
                                 ),
                               ),
-
                               const SizedBox(height: 6),
-
                               Text(
                                 'ID Kurir: $idKurir',
                                 style: const TextStyle(
@@ -93,12 +92,11 @@ class ProfilKurirPage extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-
                               const SizedBox(height: 16),
-
                               Container(
                                 width: double.infinity,
-                                padding: const EdgeInsets.symmetric(vertical: 13),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 13),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFDCEDEA),
                                   borderRadius: BorderRadius.circular(8),
@@ -112,10 +110,7 @@ class ProfilKurirPage extends StatelessWidget {
                                   ),
                                 ),
                               ),
-
                               const SizedBox(height: 14),
-
-                              // 🔥 LOGOUT FINAL
                               SizedBox(
                                 width: double.infinity,
                                 height: 45,
@@ -150,8 +145,6 @@ class ProfilKurirPage extends StatelessWidget {
                             ],
                           ),
                         ),
-
-                        // 🔥 FOTO BERDASARKAN KODE
                         Positioned(
                           top: -58,
                           child: _buildProfileAvatarByKode(idKurir),
@@ -162,7 +155,6 @@ class ProfilKurirPage extends StatelessWidget {
                 ],
               ),
             ),
-
             Positioned(
               left: 35,
               right: 35,
@@ -180,13 +172,31 @@ class ProfilKurirPage extends StatelessWidget {
                       icon: Icons.home_rounded,
                       label: 'Daftar\nPengantaran',
                       active: false,
-                      onTap: () => Navigator.pop(context),
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DaftarPengantaranPage(
+                              kurirData: kurir,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     _bottomNavItem(
-                      icon: Icons.receipt_long_outlined,
+                      icon: Icons.receipt_long_rounded,
                       label: 'Riwayat',
                       active: false,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RiwayatPage(
+                              kurir: kurir,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     _bottomNavItem(
                       icon: Icons.account_circle_outlined,
@@ -204,7 +214,6 @@ class ProfilKurirPage extends StatelessWidget {
     );
   }
 
-  // 🔥 AVATAR FINAL
   Widget _buildProfileAvatarByKode(String kodeKurir) {
     String imagePath = 'assets/images/vio.jpg';
 
@@ -250,8 +259,7 @@ class ProfilKurirPage extends StatelessWidget {
     required bool active,
     required VoidCallback onTap,
   }) {
-    final color =
-        active ? const Color(0xFF2497B8) : const Color(0xFF7F9EAA);
+    final color = active ? const Color(0xFF2497B8) : const Color(0xFF7F9EAA);
 
     return GestureDetector(
       onTap: onTap,

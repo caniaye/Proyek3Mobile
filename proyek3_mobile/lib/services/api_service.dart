@@ -60,6 +60,25 @@ class ApiService {
     throw Exception(data['message'] ?? 'Gagal mengambil detail pengantaran');
   }
 
+  static Future<Map<String, dynamic>> mulaiPengantaran({
+    required int pengantaranId,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/pengantaran/$pengantaranId/mulai'),
+      headers: {
+        'Accept': 'application/json',
+      },
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200 && data['status'] == true) {
+      return data;
+    }
+
+    throw Exception(data['message'] ?? 'Gagal mulai pengantaran');
+  }
+
   static Future<Map<String, dynamic>> verifikasiPengantaran({
     required int pengantaranId,
     required File foto,
@@ -123,4 +142,4 @@ class ApiService {
       );
     }
   }
-} 
+}

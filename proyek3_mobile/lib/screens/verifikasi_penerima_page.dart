@@ -7,15 +7,16 @@ import 'konfirmasi_pengantaran_page.dart';
 
 class VerifikasiPenerimaPage extends StatefulWidget {
   final int pengantaranId;
+  final Map<String, dynamic> kurirData;
 
   const VerifikasiPenerimaPage({
     super.key,
     required this.pengantaranId,
+    required this.kurirData,
   });
 
   @override
-  State<VerifikasiPenerimaPage> createState() =>
-      _VerifikasiPenerimaPageState();
+  State<VerifikasiPenerimaPage> createState() => _VerifikasiPenerimaPageState();
 }
 
 class _VerifikasiPenerimaPageState extends State<VerifikasiPenerimaPage> {
@@ -50,34 +51,25 @@ class _VerifikasiPenerimaPageState extends State<VerifikasiPenerimaPage> {
           result['data']?['foto_verifikasi']?.toString();
 
       if (faceMatch) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(result['message'] ?? 'Verifikasi berhasil'),
-          ),
-        );
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => KonfirmasiPengantaranPage(
               fotoVerifikasi: fotoVerifikasi,
+              kurirData: widget.kurirData,
             ),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Wajah tidak cocok'),
-          ),
+          const SnackBar(content: Text('Wajah tidak cocok')),
         );
       }
     } catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Verifikasi gagal: $e'),
-        ),
+        SnackBar(content: Text('Verifikasi gagal: $e')),
       );
     } finally {
       if (!mounted) return;
@@ -102,11 +94,7 @@ class _VerifikasiPenerimaPageState extends State<VerifikasiPenerimaPage> {
                   IconButton(
                     icon: const Icon(Icons.arrow_back, size: 30),
                     color: const Color(0xFF24576A),
-                    onPressed: isLoading
-                        ? null
-                        : () {
-                            Navigator.pop(context);
-                          },
+                    onPressed: isLoading ? null : () => Navigator.pop(context),
                   ),
                   const SizedBox(width: 8),
                   const Text(
@@ -120,9 +108,7 @@ class _VerifikasiPenerimaPageState extends State<VerifikasiPenerimaPage> {
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
-
             Container(
               width: 330,
               height: 520,
@@ -150,7 +136,6 @@ class _VerifikasiPenerimaPageState extends State<VerifikasiPenerimaPage> {
                             fotoPenerima!,
                             fit: BoxFit.cover,
                           ),
-
                     if (isLoading)
                       Container(
                         color: Colors.black45,
@@ -160,7 +145,6 @@ class _VerifikasiPenerimaPageState extends State<VerifikasiPenerimaPage> {
                           ),
                         ),
                       ),
-
                     Positioned(
                       bottom: 95,
                       left: 0,
@@ -179,7 +163,6 @@ class _VerifikasiPenerimaPageState extends State<VerifikasiPenerimaPage> {
                         ),
                       ),
                     ),
-
                     Positioned(
                       bottom: 40,
                       left: 40,
