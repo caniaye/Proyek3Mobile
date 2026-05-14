@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class KonfirmasiPengantaranPage extends StatelessWidget {
-  const KonfirmasiPengantaranPage({super.key});
+  final String? fotoVerifikasi;
+
+  const KonfirmasiPengantaranPage({
+    super.key,
+    this.fotoVerifikasi,
+  });
 
   @override
   Widget build(BuildContext context) {
-
     final now = DateTime.now();
     final tanggal = DateFormat('dd MMMM yyyy').format(now);
     final jam = DateFormat('HH:mm').format(now);
@@ -17,7 +21,6 @@ class KonfirmasiPengantaranPage extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 150),
-
             Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.topCenter,
@@ -39,9 +42,7 @@ class KonfirmasiPengantaranPage extends StatelessWidget {
                           color: Color(0xFF234F63),
                         ),
                       ),
-
                       const SizedBox(height: 8),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -62,9 +63,7 @@ class KonfirmasiPengantaranPage extends StatelessWidget {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 18),
-
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(
@@ -91,14 +90,31 @@ class KonfirmasiPengantaranPage extends StatelessWidget {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 30),
-
                       SizedBox(
                         width: double.infinity,
                         height: 48,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            if (fotoVerifikasi == null ||
+                                fotoVerifikasi!.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Foto verifikasi belum tersedia'),
+                                ),
+                              );
+                              return;
+                            }
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LihatFotoPage(
+                                  fotoUrl: fotoVerifikasi!,
+                                ),
+                              ),
+                            );
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2FA4B5),
                             elevation: 4,
@@ -119,8 +135,6 @@ class KonfirmasiPengantaranPage extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                // 🔥 BAGIAN YANG SUDAH DITAMBAHIN CENTANG
                 Positioned(
                   top: -50,
                   child: Container(
@@ -148,11 +162,8 @@ class KonfirmasiPengantaranPage extends StatelessWidget {
                 ),
               ],
             ),
-
             const Spacer(),
-
             _buildBottomNav(context),
-
             const SizedBox(height: 28),
           ],
         ),
@@ -187,23 +198,89 @@ class KonfirmasiPengantaranPage extends StatelessWidget {
             icon: Icons.receipt_long_rounded,
             label: 'Riwayat',
             selected: false,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Halaman Riwayat nanti dibuat')),
-              );
-            },
+            onTap: () {},
           ),
           _BottomNavItem(
             icon: Icons.account_circle_outlined,
             label: 'Profil',
             selected: false,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Halaman Profil nanti dibuat')),
-              );
-            },
+            onTap: () {},
           ),
         ],
+      ),
+    );
+  }
+}
+
+class LihatFotoPage extends StatelessWidget {
+  final String fotoUrl;
+
+  const LihatFotoPage({
+    super.key,
+    required this.fotoUrl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFC8E8E4),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Color(0xFF234F63),
+                      size: 30,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Foto Penerima',
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF234F63),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Center(
+                child: Container(
+                  margin: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.network(
+                    fotoUrl,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Padding(
+                        padding: EdgeInsets.all(30),
+                        child: Text(
+                          'Gagal memuat foto',
+                          style: TextStyle(
+                            color: Color(0xFF234F63),
+                            fontSize: 16,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

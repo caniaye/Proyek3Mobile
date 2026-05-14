@@ -41,7 +41,9 @@ class ApiService {
     throw Exception(data['message'] ?? 'Gagal mengambil data pengantaran');
   }
 
-  static Future<Map<String, dynamic>> getDetailPengantaran(int pengantaranId) async {
+  static Future<Map<String, dynamic>> getDetailPengantaran(
+    int pengantaranId,
+  ) async {
     final response = await http.get(
       Uri.parse('$baseUrl/pengantaran/$pengantaranId/detail'),
       headers: {
@@ -80,7 +82,13 @@ class ApiService {
 
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
-    final data = jsonDecode(response.body);
+
+    Map<String, dynamic> data = {};
+    try {
+      data = jsonDecode(response.body);
+    } catch (_) {
+      throw Exception('Response server tidak valid');
+    }
 
     if (response.statusCode == 200 && data['status'] == true) {
       return data;
@@ -115,4 +123,4 @@ class ApiService {
       );
     }
   }
-}
+} 
